@@ -1,5 +1,0 @@
-https://towardsdatascience.com/an-implementation-guide-to-word2vec-using-numpy-and-google-sheets-13445eebd281
-
-https://github.com/DerekChia/word2vec_numpy/blob/master/wordtovec.py
-
-https://www.tensorflow.org/guide/keras/customizing_what_happens_in_fit
