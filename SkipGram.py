@@ -3,6 +3,7 @@ import numpy as np
 import re
 import math
 import tensorflow.keras.backend as kb
+from tensorflow.python.keras import initializers
 from tensorflow.python.platform.tf_logging import flush
 from SkipGramTokenizer import SkipGramTokenizer
 
@@ -14,10 +15,9 @@ class SkipGramModel(tf.keras.Model):
         self.hidden_layer = tf.keras.layers.Dense(
             hidden_size, use_bias=False, activation=tf.keras.activations.linear, input_shape=[word_size])
         self.output_layer = tf.keras.layers.Dense(
-            word_size, use_bias=False, activation=tf.keras.activations.linear)
+            word_size, use_bias=False, activation=tf.keras.activations.softmax)
 
     def call(self, inputs):
-        print(inputs)
         x = self.hidden_layer(inputs)
         return self.output_layer(x)
 
@@ -47,7 +47,7 @@ class SkipGram:
         self.words_index_map, self.training_data = tokenizer.get_training_data(raw_text, self.context_size)
         word_count = len(self.words_index_map)
         self.model = SkipGramModel(word_count, word_count//2)
-        self.model.compile(optimizer='adam', loss=self.__lossFunction)
+        self.model.compile(optimizer='rmsprop', loss=self.__lossFunction)
         
 
     def train(self):
@@ -57,15 +57,15 @@ class SkipGram:
             x.append(pair[0])
             y.append(pair[1])
         
-        x = np.array(x)
-        y = np.array(y)
-        self.model.fit(x, y, epochs= 50)
+        x = np.array(x, dtype="float32")
+        y = np.array(y, dtype="float32")
+        self.model.fit(x, y, epochs= 10000, batch_size=10000,verbose=1)
 
     def predict(self):
         pass
 
     def __lossFunction(self, actual_output, u):
-        return -kb.sum(actual_output*u) + len(self.words_index_map) * kb.log(kb.sum(kb.exp(u)))
+        return -kb.sum(actual_output*u) + kb.sum(u) * kb.log(kb.sum(kb.exp(u)))
 
 
 
